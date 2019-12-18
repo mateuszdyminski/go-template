@@ -8,7 +8,7 @@ LAST_COMMIT_USER ?= $(shell git log -1 --format='%cn <%ce>')
 LAST_COMMIT_HASH ?= $(shell git log -1 --format=%H)
 LAST_COMMIT_TIME ?= $(shell git log -1 --format=%cd --date=format:'%Y-%m-%d %H:%M:%S')
 
-GIT_REPO := gitlabe2.ext.net.nokia.com/dyminski/shortener
+GIT_REPO := github.com/mateuszdyminski/go-template
 DOCKER_REPO := mateuszdyminski
 
 GOFILES := $(shell find . -name "*.go" -type f -not -path "./vendor/*")
@@ -42,7 +42,7 @@ build:
 	CGO_ENABLED=0 \
 	go build \
 	-v \
-	-ldflags "-s -w -X '$(GIT_REPO)/version.AppName=$(NAME)' -X '$(GIT_REPO)/version.AppVersion=$(VERSION)' -X '$(GIT_REPO)/version.BuildTime=$(BUILD_TIME)' -X '$(GIT_REPO)/version.LastCommitUser=$(LAST_COMMIT_USER)' -X '$(GIT_REPO)/version.LastCommitHash=$(LAST_COMMIT_HASH)' -X '$(GIT_REPO)/version.LastCommitTime=$(LAST_COMMIT_TIME)'" \
+	-ldflags "-s -w -X '$(GIT_REPO)/api.AppName=$(NAME)' -X '$(GIT_REPO)/api.AppVersion=$(VERSION)' -X '$(GIT_REPO)/api.APIVersion=$(VERSION)' -X '$(GIT_REPO)/api.BuildTime=$(BUILD_TIME)' -X '$(GIT_REPO)/api.LastCommitUser=$(LAST_COMMIT_USER)' -X '$(GIT_REPO)/api.LastCommitHash=$(LAST_COMMIT_HASH)' -X '$(GIT_REPO)/api.LastCommitTime=$(LAST_COMMIT_TIME)'" \
 	-o $(NAME)-$(VERSION) .
 
 docker-build:

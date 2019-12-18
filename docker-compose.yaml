@@ -17,6 +17,23 @@ services:
       - postgres
     restart: unless-stopped
 
+  application:
+    build: 
+      context: .
+      args:
+        GOLANG_VERSION: ${GOLANG_VERSION:-1.13.5}
+        ALPINE_VERSION: ${ALPINE_VERSION:-3.10}
+        NAME: ${NAME:-application}
+        VERSION: ${VERSION:-09094c0}
+        BUILD_TIME: ${BUILD_TIME:-2019-12-16 10:58:15}
+        LAST_COMMIT_USER: ${LAST_COMMIT_USER:-Mateusz Dyminski <dyminski@gmail.com>} 
+        LAST_COMMIT_HASH: ${LAST_COMMIT_HASH:-09094c0a426f0902c9297109774d7e245a56947e}
+        LAST_COMMIT_TIME: ${LAST_COMMIT_TIME:-2019-12-16 11:50:51}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
 networks:
   postgres:
     driver: bridge
