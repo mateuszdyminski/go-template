@@ -45,6 +45,13 @@ func NewMetricsMiddleware() *MetricsMiddleware {
 	}
 }
 
+// Metrics godoc
+// @Summary Prometheus metrics
+// @Description returns HTTP requests duration and Go runtime metrics
+// @Tags Prometheus
+// @Produce plain
+// @Router /metrics [get]
+// @Success 200 {string} string "OK"
 func (p *MetricsMiddleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		begin := time.Now()

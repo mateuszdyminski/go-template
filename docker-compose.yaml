@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   postgres:
-    container_name: postgres_container
+    container_name: pg_container
     image: postgres:12.1-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -22,7 +22,7 @@ services:
       context: .
       args:
         GOLANG_VERSION: ${GOLANG_VERSION:-1.13.5}
-        ALPINE_VERSION: ${ALPINE_VERSION:-3.10}
+        ALPINE_VERSION: ${ALPINE_VERSION:-3.11}
         NAME: ${NAME:-application}
         VERSION: ${VERSION:-09094c0}
         BUILD_TIME: ${BUILD_TIME:-2019-12-16 10:58:15}
@@ -31,6 +31,8 @@ services:
         LAST_COMMIT_TIME: ${LAST_COMMIT_TIME:-2019-12-16 11:50:51}
     ports:
       - "8080:8080"
+    networks:
+      - postgres
     depends_on:
       - postgres
 

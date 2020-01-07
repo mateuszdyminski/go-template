@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
 )
 
@@ -36,6 +37,13 @@ func newRouter(ctx context.Context, l *zap.Logger, repo app.Repository) *mux.Rou
 	r.HandleFunc("/api/health", apiHandler.Healthz).Methods(http.MethodGet)
 	r.HandleFunc("/api/ready", apiHandler.Readyz).Methods(http.MethodGet)
 
+	// Swagger configuration
+	r.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"),
+	))
+	r.HandleFunc("/swagger.json", api.SwaggerHandler(l.Sugar()))
+
+	// Prometheus configuration
 	r.Handle("/metrics", promhttp.Handler())
 
 	return r

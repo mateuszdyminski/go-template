@@ -1,0 +1,13 @@
+ # VS Code
+.vscode/
+
+# Golang Test Coverage
+/cover.out
+/coverage_report.html
+
+# make build outputs
+/go-template-*
+
+# swagger files
+/swagger-docs/*
+!/swagger-docs/placeholder.go

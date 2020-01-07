@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	_ "github.com/mateuszdyminski/go-template/swagger-docs"
+	"github.com/swaggo/swag"
+
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -14,13 +17,13 @@ func WriteErrJSON(l *zap.SugaredLogger, w http.ResponseWriter, r *http.Request, 
 	l.With("requestId", GetReqID(r.Context())).Error(err)
 
 	// write error to response
-	var errMap = map[string]interface{}{
-		"httpStatus":   httpCode,
-		"error":        err.Error(),
-		"internalCode": -1,
+	e := HTTPError{
+		HTTPStatusCode:  httpCode,
+		Msg:             err.Error(),
+		InternalErrCode: -1,
 	}
 
-	if err := WriteJSON(w, errMap, httpCode); err != nil {
+	if err := WriteJSON(w, e, httpCode); err != nil {
 		l.Errorw("error while sending err json", "err", err)
 	}
 }
@@ -47,4 +50,24 @@ func MustWriteJSON(l *zap.SugaredLogger, w http.ResponseWriter, r *http.Request,
 	if err := WriteJSON(w, data, httpCode); err != nil {
 		WriteErrJSON(l, w, r, err, http.StatusInternalServerError)
 	}
+}
+
+func SwaggerHandler(l *zap.SugaredLogger) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		doc, err := swag.ReadDoc()
+		if err != nil {
+			WriteErrJSON(l, w, r, err, http.StatusInternalServerError)
+		}
+
+		if _, err := w.Write([]byte(doc)); err != nil {
+			l.Errorw("error while sending err json", "err", err)
+		}
+	}
+}
+
+// HTTPError - general error response for api.
+type HTTPError struct {
+	HTTPStatusCode  int    `json:"httpStatusCode"`
+	Msg             string `json:"msg"`
+	InternalErrCode int    `json:"internalErrCode"`
 }

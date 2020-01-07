@@ -15,6 +15,13 @@ import (
 	"go.uber.org/zap"
 )
 
+// @title Go-template
+// @description This is a simple http service written in go.
+
+// @contact.name Mateusz Dyminski
+// @contact.email dyminski@gmail.com
+
+// @BasePath /
 func main() {
 	logger := initLogger()
 	ls := logger.Sugar()

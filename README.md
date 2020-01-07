@@ -1,10 +1,30 @@
-# Project Title
+# Go-template
 
-Application description goes here
+TBD
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+TBD
+
+### Features
+
+* 12-factor app compliant
+* Inteligent health checks (readiness and liveness) - they are checking connection to DB as well
+* Graceful shutdown on interrupt signals
+* Instrumented with Prometheus
+* Structured logging with zap
+* Layered docker builds
+* Multi-stage docker builds
+* Repository for connecting PostgresDB
+* Swagger docs available under `/swagger` endpoint
+
+### Web API
+
+* `GET` /version returns information about app version, last commiter, etc
+* `GET` /metrics returns metrics for prometheus purpose
+* `GET` /health returns liveness probe
+* `GET` /ready returns readiness probe
+* `GET` /swagger.json returns the API Swagger docs, used for Linkerd service profiling and Gloo routes discovery
 
 ### Prerequisites
 
@@ -13,6 +33,9 @@ You need to have working `go` environment:
 * Install `go` - [https://golang.org/dl/](https://golang.org/dl/)
 * Have working `make` - [https://www.gnu.org/software/make/](https://www.gnu.org/software/make/)
 * Install `docker` - [https://docs.docker.com/install/](https://docs.docker.com/install/)
+* Install `golangci-lint` - [https://github.com/golangci/golangci-lint](https://github.com/golangci/golangci-lint)
+* Install `swag` - [https://github.com/swaggo/swag](https://github.com/swaggo/swag)
+* Install `misspell` - [https://github.com/client9/misspell](https://github.com/client9/misspell)
 * [For local development] Install `docker-compose` - [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
 
 ### Installing
@@ -21,68 +44,66 @@ A step by step series of examples how to get a development env running:
 
 Run `docker-compose` with all required components:
 
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
+```bash
+docker-compose up -d postgres
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+And run application locally:
+
+```bash
+make run
+```
+
+Or with docker-compose:
+
+```bash
+docker-compose up -d application
+```
+
+Now you can go to [http://localhost:8080/swagger/](http://localhost:8080/swagger) and check whether it's working.
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
+```bash
+make test
 ```
 
 ### And coding style tests
 
-Explain what these tests test and why
-
-```
-Give an example
+```bash
+make lint
 ```
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+To build, pack binary into Docker image and push it into [dockerhub.com](dockerhub.com):
 
-## Built With
+```bash
+make release
+```
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+```bash
+kubectl apply -k github.com/mateuszdyminski/go-template/kustomize
+```
 
-## Contributing
+## Build final binary
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+```bash
+make build
+```
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+TBD
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+MIT
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+TBD

@@ -3,8 +3,8 @@ package api
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
+	"strconv"
 	"sync/atomic"
 	"time"
 
@@ -61,19 +61,37 @@ func (a *apiHandler) watchSignals(ctx context.Context) {
 	atomic.StoreInt32(&a.healthy, 0)
 }
 
+// Versionz godoc
+// @Summary Application version information
+// @Description returns information about application version
+// @Tags API
+// @Produce json
+// @Router /api/version [get]
+// @Failure 500 {object} api.HTTPError
+// @Success 200 {object} api.VersionResp
 func (a *apiHandler) Versionz(w http.ResponseWriter, r *http.Request) {
-	resp := map[string]string{
-		"appName":       AppName,
-		"version":       AppVersion,
-		"buildTime":     BuildTime,
-		"gitCommitHash": LastCommitHash,
-		"gitCommitUser": LastCommitUser,
-		"gitCommitTime": LastCommitTime,
+	resp := VersionResp{
+		AppName:        AppName,
+		APIVersion:     APIVersion,
+		AppVersion:     AppVersion,
+		BuildTime:      BuildTime,
+		LastCommitHash: LastCommitHash,
+		LastCommitUser: LastCommitUser,
+		LastCommitTime: LastCommitTime,
 	}
 
 	MustWriteJSON(a.l, w, r, resp, http.StatusOK)
 }
 
+// Healthz godoc
+// @Summary Application health information
+// @Description returns information whether application is up and running as well as information whether connection to DB is up. Endpoint returns http status 500 when there no connection to DB or 503 when service starts shutdown process
+// @Tags API
+// @Produce json
+// @Router /api/health [get]
+// @Failure 500 {object} api.HealthResp
+// @Failure 503 {object} api.HTTPError
+// @Success 200 {object} api.HealthResp
 func (a *apiHandler) Healthz(w http.ResponseWriter, r *http.Request) {
 	if atomic.LoadInt32(&a.healthy) != 1 {
 		WriteErrJSON(a.l, w, r, errors.New("graceful shutdown started"), http.StatusServiceUnavailable)
@@ -83,16 +101,12 @@ func (a *apiHandler) Healthz(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	dbResp := "up"
+	resp := HealthResp{Uptime: time.Since(StartTime).String()}
 	ok, err := a.repo.OK(ctx)
 	if err != nil {
-		dbResp = fmt.Sprintf("db down - %s", err)
+		resp.DBError = err.Error()
 	}
-
-	resp := map[string]string{
-		"uptime":   time.Since(StartTime).String(),
-		"dbStatus": dbResp,
-	}
+	resp.DBStatus = strconv.FormatBool(ok)
 
 	if ok {
 		MustWriteJSON(a.l, w, r, resp, http.StatusOK)
@@ -101,11 +115,39 @@ func (a *apiHandler) Healthz(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Healthz godoc
+// @Summary Application ready information
+// @Description returns information whether application is ready for handling traffic. Endpoint returns http status 503 when service starts shutdown process
+// @Tags API
+// @Produce json
+// @Router /api/ready [get]
+// @Failure 500 {object} api.HTTPError
+// @Failure 503 {object} api.HTTPError
+// @Success 200 {object} api.HealthResp
 func (a *apiHandler) Readyz(w http.ResponseWriter, r *http.Request) {
 	if atomic.LoadInt32(&a.healthy) != 1 {
 		WriteErrJSON(a.l, w, r, errors.New("graceful shutdown started"), http.StatusServiceUnavailable)
 		return
 	}
 
-	MustWriteJSON(a.l, w, r, struct{ Msg string }{"OK"}, http.StatusOK)
+	MustWriteJSON(a.l, w, r, HealthResp{Msg: "OK"}, http.StatusOK)
+}
+
+// VersionResp - struct represents response for /version endpoint.
+type VersionResp struct {
+	AppName        string `json:"appName"`
+	APIVersion     string `json:"apiVersion"`
+	AppVersion     string `json:"version"`
+	BuildTime      string `json:"buildTime"`
+	LastCommitHash string `json:"gitCommitHash"`
+	LastCommitUser string `json:"gitCommitUser"`
+	LastCommitTime string `json:"gitCommitTime"`
+}
+
+// HealthResp - struct represents response for /health endpoint.
+type HealthResp struct {
+	Msg      string `json:"msg,omitempty"`
+	Uptime   string `json:"uptime,omitempty"`
+	DBStatus string `json:"dbStatus,omitempty"`
+	DBError  string `json:"dbError,omitempty"`
 }
